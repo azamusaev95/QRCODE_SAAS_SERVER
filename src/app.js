@@ -9,16 +9,18 @@ import feedbackRoutes from "./feedback/feedback.routes.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 👇 ИЗМЕНЕНИЕ ЗДЕСЬ: Явная настройка CORS
+// ✅ ПРАВИЛЬНАЯ НАСТРОЙКА CORS
 app.use(
   cors({
-    origin: "*", // Разрешаем запросы с любого сайта (для тестов)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Разрешенные методы
-    allowedHeaders: ["Content-Type", "Authorization"], // Разрешаем передачу токена
-    credentials: true, // Разрешаем куки/заголовки безопасности
+    origin: true, // Автоматически принимает origin от клиента
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
-// 👆 КОНЕЦ ИЗМЕНЕНИЙ
+
+// ✅ Явная обработка preflight для всех роутов
+app.options("*", cors());
 
 app.use(express.json());
 
@@ -36,7 +38,6 @@ const start = async () => {
     await sequelize.sync({ alter: true });
     console.log("✅ DB Connected & Synced");
 
-    // 👇 ДОБАВИЛ '0.0.0.0' — это важно для Docker/Railway, чтобы сервер был доступен извне
     app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server on port ${PORT}`));
   } catch (e) {
     console.error("❌ DB Error:", e);
